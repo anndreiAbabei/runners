@@ -46,6 +46,10 @@ public class Program
         var sc = new ServiceCollection();
 
         sc.AddSingleton<IRunnerManager, RunnerManager>()
+          .AddSingleton<IVersionProvider, VersionProvider>()
+          .AddSingleton<IRuntimeInformationProvider, RuntimeInformationProvider>()
+          .AddSingleton<ICommandProvider, CommandProvider>()
+          .AddSingleton<IFileSystemManager, FileSystemManager>()
           .AddSingleton(TimeProvider.System);
 
         sc.AddCommands(args, builder =>

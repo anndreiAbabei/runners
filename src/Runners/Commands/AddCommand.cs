@@ -11,19 +11,16 @@ public sealed class AddCommand : BaseCommand<AddCommand.AddCommandData>, IComman
 {
     private readonly IRunnersDbContext _dbContext;
     private readonly IRunnerManager _manager;
-    private readonly IConsolePrint _console;
     private readonly TimeProvider _timeProvider;
     private readonly ILogger<AddCommand> _logger;
 
     public AddCommand(IRunnersDbContext dbContext, 
                       IRunnerManager manager, 
-                      IConsolePrint console, 
                       TimeProvider timeProvider,
                       ILogger<AddCommand> logger)
     {
         _dbContext = dbContext;
         _manager = manager;
-        _console = console;
         _timeProvider = timeProvider;
         _logger = logger;
     }
