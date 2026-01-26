@@ -18,7 +18,7 @@ public class Program
         // args = ["set", "1", "stop"]
         // args = ["set", "1", "start"]
         // args = ["delete", "1", "--yes"]
-        args = ["version"]
+        // args = ["version"]
         ;
 #endif
         var sp = CreateServices(args);
