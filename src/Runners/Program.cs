@@ -18,6 +18,7 @@ public class Program
         // args = ["set", "1", "stop"]
         // args = ["set", "1", "start"]
         // args = ["delete", "1", "--yes"]
+        args = ["version"]
         ;
 #endif
         var sp = CreateServices(args);
@@ -55,6 +56,7 @@ public class Program
             builder.AddCommand<AddCommand>();
             builder.AddCommand<SetCommand>();
             builder.AddCommand<DeleteCommand>();
+            builder.AddCommand<VersionCommand>();
         });
 
         sc.AddLogging(lb => lb.SetMinimumLevel(LogLevel.Warning)

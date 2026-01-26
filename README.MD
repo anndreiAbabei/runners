@@ -30,6 +30,15 @@ Usage:
  ``` 
 
 ---
+#### version
+Prints the version of the app
+
+Usage:
+ ```shell
+ runners version
+ ``` 
+
+---
 #### list
 List all runners configured.
  
