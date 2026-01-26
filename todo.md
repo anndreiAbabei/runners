@@ -1,1 +1,2 @@
 - [ ] configure logging through CLI
+- [ ] unit tests

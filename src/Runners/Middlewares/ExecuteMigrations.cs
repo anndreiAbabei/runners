@@ -5,11 +5,11 @@ using SlimeTools.Commander;
 
 namespace Runners.Middlewares;
 
-public sealed class EnsureDbCreated : IMiddleware
+public sealed class ExecuteMigrations : IMiddleware
 {
     private readonly IRunnersDbContext _dbContext;
     
-    public EnsureDbCreated(IRunnersDbContext dbContext)
+    public ExecuteMigrations(IRunnersDbContext dbContext)
     {
         _dbContext = dbContext;
     }

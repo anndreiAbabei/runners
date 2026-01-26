@@ -15,9 +15,9 @@ public class Program
 #if DEBUG
         // args = ["add", "--url", "https://github.com/org/repo", "--token", "test"]
         // args = ["list"]
+        // args = ["set", "1", "stop"]
         // args = ["set", "1", "start"]
         // args = ["delete", "1", "--yes"]
-        
         ;
 #endif
         var sp = CreateServices(args);
@@ -49,7 +49,7 @@ public class Program
 
         sc.AddCommands(args, builder =>
         {
-            builder.AddMiddleware<EnsureDbCreated>();
+            builder.AddMiddleware<ExecuteMigrations>();
         
             builder.AddCommand<ListCommand>();
             builder.AddCommand<AddCommand>();

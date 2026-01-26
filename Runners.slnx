@@ -1,5 +1,6 @@
 <Solution>
   <Folder Name="/docs/">
+    <File Path="LICENCE" />
     <File Path="README.MD" />
     <File Path="todo.md" />
   </Folder>

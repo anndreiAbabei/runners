@@ -2,8 +2,15 @@
 
 `//todo`
 
-This is a personal project. It uses an internal/personal library (SlimeTools.Commander) that is not open-sourced _yet_.
+This is a personal project that I use to manage my local GitHub self-hosted runners. 
+
+It uses an internal/personal library (SlimeTools.Commander) that is not open-sourced _yet_.
 While the features will work, you won't be able to run it without changing the implementation for the CLI args parser.
+
+Atm code is kinda hacky, but I needed something quick to manage my runners. 
+Not all console outputs is properly formated, unit tests are missing, windows code not tested, some code lies through `Constants` class, and there are some `DEBUG` directives left in the code while I was testing.
+
+**So really, don't use this!** 
 
 More details to add!
 
