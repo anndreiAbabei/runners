@@ -13,7 +13,7 @@ public class Program
     public static async Task Main(string[] args)
     {
 #if DEBUG
-        // args = ["add", "--url", "https://github.com/UltraSlime/SlimeEngine", "--token", "test"]
+        // args = ["add", "--url", "https://github.com/org/repo", "--token", "test"]
         // args = ["list"]
         // args = ["set", "1", "start"]
         // args = ["delete", "1", "--yes"]
