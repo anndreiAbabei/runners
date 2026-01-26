@@ -5,6 +5,14 @@
         <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <Version>0.0.1</Version>
+        <Title>Runners</Title>
+        <Authors>Andrei Ababei</Authors>
+        <Description>Small utility to manage self-hosted GitHub runners</Description>
+        <Copyright>Andrei Ababei</Copyright>
+        <PackageLicenseUrl>https://github.com/anndreiAbabei/runners/blob/master/LICENCE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/anndreiAbabei/runners</RepositoryUrl>
+        <AssemblyVersion>0.0.1</AssemblyVersion>
     </PropertyGroup>
 
     <ItemGroup>
