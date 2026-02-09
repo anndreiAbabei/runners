@@ -1,5 +1,7 @@
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Runners.Extensions;
 using Runners.Services;
 
 namespace Runners.Persistence;
@@ -8,21 +10,32 @@ public interface IRunnersDbContext
 {
     DatabaseFacade Database { get; }
     
-    DbSet<RunnerItem> RunnerItems { get; set; }
+    DbSet<RunnerItem> RunnerItems { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken);
 }
 
 public sealed class RunnersDbContext : DbContext, IRunnersDbContext
 {
-    internal static string ConnectionString => field ??= Constants.CreateDbConnectionString();
-    
+    private readonly IRuntimeInformationProvider _runtimeInformationProvider;
+    internal string ConnectionString
+    {
+        get => field ??= CreateDbConnectionString();
+        set;
+    }
+
     public DbSet<RunnerItem> RunnerItems { get; set; }
 
-    public RunnersDbContext() {}
+    public RunnersDbContext(IRuntimeInformationProvider runtimeInformationProvider) 
+    {
+        _runtimeInformationProvider = runtimeInformationProvider;
+    }
 
-    public RunnersDbContext(DbContextOptions options) 
-        : base(options) {}
+    public RunnersDbContext(IRuntimeInformationProvider runtimeInformationProvider, DbContextOptions options) 
+        : base(options)
+    {
+        _runtimeInformationProvider = runtimeInformationProvider;
+    }
     
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -31,11 +44,11 @@ public sealed class RunnersDbContext : DbContext, IRunnersDbContext
         entity.HasKey(i => i.Id);
         entity.Property(i => i.Id).UseAutoincrement();
         entity.Property(i => i.Name).HasMaxLength(100).IsRequired();
-        entity.Property(i => i.GitUrl).HasMaxLength(100).IsRequired();
-        entity.Property(i => i.FolderPath).HasMaxLength(100).IsRequired();
+        entity.Property(i => i.GitUrl).HasMaxLength(200).IsRequired();
+        entity.Property(i => i.FolderPath).HasMaxLength(200).IsRequired();
         entity.Property(i => i.CreatedAt).IsRequired();
         entity.Property(i => i.State).HasDefaultValue(RunnerState.Added);
-        entity.Property(i => i.Tag).HasMaxLength(100);
+        entity.Property(i => i.Tag).HasMaxLength(200);
         entity.Property(i => i.Deleted).HasDefaultValue(false);
     }
 
@@ -43,6 +56,26 @@ public sealed class RunnersDbContext : DbContext, IRunnersDbContext
     {
         base.OnConfiguring(optionsBuilder);
         
+        if(optionsBuilder.IsConfigured)
+            return;
+        
         optionsBuilder.UseSqlite(ConnectionString);
+    }
+    
+    private string CreateDbConnectionString()
+    {
+        const string fileName = "data.db";
+
+        var dataDir = _runtimeInformationProvider.GetStateDir();
+        var filePath = Path.Combine(dataDir, fileName);
+        
+        var connectionString = new SqliteConnectionStringBuilder
+        {
+            BrowsableConnectionString = false,
+            DataSource = filePath,
+            Mode = SqliteOpenMode.ReadWriteCreate,
+        };
+
+        return connectionString.ToString();
     }
 }

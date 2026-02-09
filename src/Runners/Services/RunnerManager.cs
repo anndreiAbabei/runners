@@ -49,7 +49,7 @@ public sealed class RunnerManager : IRunnerManager
 
     public Result<string> GetRunnerFolder(string runnerName)
     {
-        var runnersFolder = Constants.GetRunnersFolder();
+        var runnersFolder = GetRunnersFolder();
         var runnerFolder = Path.Combine(runnersFolder, runnerName);
 
         if (!_fileManager.DirectoryExists(runnerFolder))
@@ -206,11 +206,6 @@ public sealed class RunnerManager : IRunnerManager
         return Result.Combine(resultSvc, resultConfig);
     }
     
-    private ValueTask<Result<string>> Execute(string command, string[] args, string workingDirectory, CancellationToken cancellationToken)
-    {
-        return Run(_commandProvider.Create(command), args, workingDirectory, cancellationToken);
-    }
-    
     private ValueTask<Result<string>> RunFile(string file, string[] args, string workingDirectory, CancellationToken cancellationToken)
     {
         return Run(_commandProvider.Shell(), [file, ..args], workingDirectory, cancellationToken);
@@ -242,5 +237,13 @@ public sealed class RunnerManager : IRunnerManager
         return result.IsFailure 
                    ? Result.Failure($"Fail to run {command.Arguments} with error {result.Error}") 
                    : Result.Success();
+    }
+    
+    private string GetRunnersFolder()
+    {
+        const string runnersFolder = "runners";
+        var dataDir = _runtimeInformation.GetStateDir(_fileManager);
+
+        return Path.Combine(dataDir, runnersFolder);
     }
 }

@@ -6,7 +6,19 @@
         <Nullable>enable</Nullable>
         <IsPackable>false</IsPackable>
     </PropertyGroup>
+    
+    <PropertyGroup>
+        <CollectCoverage>true</CollectCoverage>
+        <CoverletOutputFormat>cobertura</CoverletOutputFormat>
 
+        <!-- Exclusions -->
+        <ExcludeByFile>
+            **/Migrations/*.cs;
+            **/*Designer.cs;
+            **/*ModelSnapshot.cs
+        </ExcludeByFile>
+    </PropertyGroup>
+    
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="6.0.4"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
@@ -25,5 +37,4 @@
     <ItemGroup>
       <ProjectReference Include="..\..\src\Runners\Runners.csproj" />
     </ItemGroup>
-
 </Project>
