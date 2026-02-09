@@ -1,10 +1,10 @@
 using System.Runtime.InteropServices;
 using System.Text;
-using CliWrap;
 using CSharpFunctionalExtensions;
 using Microsoft.Extensions.Logging;
 using Runners.Extensions;
 using Runners.Persistence;
+using Runners.Services.Commands;
 
 namespace Runners.Services;
 
@@ -216,7 +216,7 @@ public sealed class RunnerManager : IRunnerManager
         return Run(_commandProvider.Shell(), [file, ..args], workingDirectory, cancellationToken);
     }
     
-    private async ValueTask<Result<string>> Run(Command command, string[] args, string workingDirectory, CancellationToken cancellationToken)
+    private async ValueTask<Result<string>> Run(ICommand command, string[] args, string workingDirectory, CancellationToken cancellationToken)
     {
         _logger.LogDebug("Executing command {Command} with {Arguments}, in {WorkingDirectory}", 
                          command.TargetFilePath, args, workingDirectory);
@@ -224,32 +224,23 @@ public sealed class RunnerManager : IRunnerManager
         var sb = new StringBuilder();
         var result = await command.WithArguments(args)
                                   .WithWorkingDirectory(workingDirectory)
-                                  .WithValidation(CommandResultValidation.None)
-                                  .WithStandardOutputPipe(PipeTarget.ToStringBuilder(sb))
-                                  .ExecuteAsync(cancellationToken);
+                                  .Execute(cancellationToken);
 
-        return !result.IsSuccess 
-                   ? Result.Failure<string>($"{string.Join(' ', args)} failed with {result.ExitCode}") 
+        return result.IsFailure 
+                   ? Result.Failure<string>($"{string.Join(' ', args)} failed with {result.Error}") 
                    : Result.Success(sb.ToString());
     }
 
-    private async ValueTask<Result> RunInShell(Command command, string workingDirectory, CancellationToken cancellationToken)
+    private async ValueTask<Result> RunInShell(ICommand command, string workingDirectory, CancellationToken cancellationToken)
     {
         _logger.LogDebug("Executing command {Command} with {Arguments} (on {WorkingDirectory}) in shell.", 
                          command.TargetFilePath, command.Arguments, workingDirectory);
         
         var result = await command.WithWorkingDirectory(workingDirectory)
-                                  .WithValidation(CommandResultValidation.None)
-                                  .ExecuteAsync(info =>
-                                  {
-                                      info.RedirectStandardInput = false;
-                                      info.RedirectStandardError = false;
-                                      info.RedirectStandardOutput = false;
-                                      info.UseShellExecute = true;
-                                  }, forcefulCancellationToken: cancellationToken);
+                                  .Execute(cancellationToken);
 
-        return !result.IsSuccess 
-                   ? Result.Failure($"Fail to run {command.Arguments} with error {result.ExitCode}") 
+        return result.IsFailure 
+                   ? Result.Failure($"Fail to run {command.Arguments} with error {result.Error}") 
                    : Result.Success();
     }
 }

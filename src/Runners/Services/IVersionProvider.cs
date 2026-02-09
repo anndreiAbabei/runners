@@ -9,5 +9,5 @@ public interface IVersionProvider
 
 public sealed class VersionProvider : IVersionProvider
 {
-    public Version GetAppVersion() => Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0, 0);
+    public Version GetAppVersion() => Assembly.GetEntryAssembly()?.GetName().Version ?? new Version(0, 0);
 }

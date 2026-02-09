@@ -1,12 +1,11 @@
-using CliWrap;
 using Runners.Extensions;
 
-namespace Runners.Services;
+namespace Runners.Services.Commands;
 
 public interface ICommandProvider
 {
-    Command Shell();
-    Command Create(string command);
+    ICommand Shell();
+    ICommand Create(string command);
 }
 
 public sealed class CommandProvider : ICommandProvider
@@ -19,9 +18,9 @@ public sealed class CommandProvider : ICommandProvider
 
     }
     
-    public Command Create(string command) => Cli.Wrap(command);
+    public ICommand Create(string command) => new CliCommand(command);
     
-    public Command Shell()
+    public ICommand Shell()
     {
         var cmd = _runtimeProvider.IsWindows
                       ? "cmd"

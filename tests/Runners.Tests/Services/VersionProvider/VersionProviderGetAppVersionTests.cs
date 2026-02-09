@@ -9,7 +9,7 @@ public sealed class VersionProviderGetAppVersionTests
     public void Should_ReturnAssemblyVersion()
     {
         // arrange
-        var expectedVersion = Assembly.GetExecutingAssembly().GetName().Version ?? new Version(0, 0);
+        var expectedVersion = Assembly.GetEntryAssembly()?.GetName().Version ?? new Version(0, 0);
         var sut = new VersionProvider();
 
         // act
