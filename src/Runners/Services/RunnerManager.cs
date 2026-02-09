@@ -65,22 +65,6 @@ public sealed class RunnerManager : IRunnerManager
     {
         _logger.LogDebug("Getting status for {Runner} with state {State}", runner.Id, runner.State);
         
-        switch (runner.State)
-        {
-            case RunnerState.Added:
-                return nameof(RunnerState.Added);
-            case RunnerState.Downloaded:
-                return nameof(RunnerState.Downloaded);
-            case RunnerState.Configured:
-                return nameof(RunnerState.Configured);
-            case RunnerState.Installed:
-                return nameof(RunnerState.Installed);
-            case RunnerState.Started:
-                break;
-            default:
-                throw new ArgumentOutOfRangeException(nameof(runner));
-        }
-
         var extension = _runtimeInformation.GetShellExtension();
         var fileToCheck = Path.ChangeExtension("svc", extension);
         

@@ -14,6 +14,23 @@ Not all console outputs is properly formated, unit tests are missing, windows co
 
 More details to add!
 
+## How does it work?
+
+Once started the application will first create a SQLite Database file in an "appdata" folder, and a folder called runners.
+The database will store all the runners created through the application (using `add`) and their state. Also on the same folder a new subfolder will be created (called "runners") will be created, there all every GitHub runner will be created. 
+
+Creating a new runner (`add`) will create a new folder with the name of the runner in the "runners" folder.
+
+The said folder is as following:
+- Windows: `C:\ProgramData\runners_app`
+- Linux: `/var/lib/runners_app`
+- OSX: `/Library/Application Support/runners_app`
+- FreeBSD: `/var/db/runners_app` (_not supported yet_)
+
+In that folder you will have the db file (`data.db`) and the folder with the runners (`runners`).
+
+To remove everything you can simply delete the `runners_app` folder – I don't advice doing that tho!
+
 --- 
 
 ## Usage

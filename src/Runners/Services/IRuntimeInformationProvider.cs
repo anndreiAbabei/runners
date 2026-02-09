@@ -3,10 +3,10 @@ using System.Runtime.InteropServices;
 
 namespace Runners.Services;
 
-[SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Keep it consistent as OSPlatform")]
 public interface IRuntimeInformationProvider
 {
     Architecture ProcessArchitecture { get; }
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Keep it consistent as OSPlatform")]
     bool IsOSPlatform(OSPlatform osPlatform);
 }
 

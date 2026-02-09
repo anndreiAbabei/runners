@@ -30,12 +30,12 @@ public sealed class RunnersDbContext : DbContext, IRunnersDbContext
         var entity = modelBuilder.Entity<RunnerItem>();
         entity.HasKey(i => i.Id);
         entity.Property(i => i.Id).UseAutoincrement();
-        entity.Property(i => i.Name).IsRequired();
-        entity.Property(i => i.GitUrl).IsRequired();
-        entity.Property(i => i.FolderPath).IsRequired();
+        entity.Property(i => i.Name).HasMaxLength(100).IsRequired();
+        entity.Property(i => i.GitUrl).HasMaxLength(100).IsRequired();
+        entity.Property(i => i.FolderPath).HasMaxLength(100).IsRequired();
         entity.Property(i => i.CreatedAt).IsRequired();
         entity.Property(i => i.State).HasDefaultValue(RunnerState.Added);
-        entity.Property(i => i.Tag);
+        entity.Property(i => i.Tag).HasMaxLength(100);
         entity.Property(i => i.Deleted).HasDefaultValue(false);
     }
 
