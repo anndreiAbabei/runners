@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Runners.Commands;
+using Runners.Logging;
 using Runners.Middlewares;
 using Runners.Persistence;
 using Runners.Services;
@@ -64,8 +65,11 @@ public class Program
             builder.AddCommand<VersionCommand>();
         });
 
-        sc.AddLogging(lb => lb.SetMinimumLevel(LogLevel.Warning)
-                              .AddSimpleConsole(c => c.SingleLine = true));
+        const LogLevel logLevel = LogLevel.Information;
+        var logFile = $"log{DateTime.UtcNow:yyyy-MM-ddTHHmmss}.log";
+        sc.AddLogging(lb => lb.SetMinimumLevel(logLevel)
+                              .AddSimpleConsole(c => c.SingleLine = true)
+                              .AddProvider(new FileLoggingProvider(logFile, logLevel)));
 
         sc.AddDbContext<IRunnersDbContext, RunnersDbContext>(); 
 
