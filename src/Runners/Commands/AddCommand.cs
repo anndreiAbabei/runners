@@ -30,11 +30,11 @@ public sealed class AddCommand : BaseCommand<AddCommand.AddCommandData>, IComman
         return builder.Create<AddCommandData>("add", new CommandDetails { Description = "Create a new GitHub runner" })
                       .WithFlag(d => d.GitHubUrl, "url", new FlagOptions { Description = "Url of the GitHub url", Optional = false })
                       .WithFlag(d => d.Token, "token", new FlagOptions { Description = "Token of the GitHub runner", Optional = false })
-                      .WithFlag(d => d.Tag, "tag", new FlagOptions{Description = "Local name of the GitHub runner", Optional = true})
-                      .WithFlag(d => d.NoDownload, "no-download", new FlagOptions{Description = "Flag to stop add before download (default: false)", Optional = true})
-                      .WithFlag(d => d.NoConfig, "no-config", new FlagOptions{Description = "Flag to stop add before config (default: false)", Optional = true})
-                      .WithFlag(d => d.NoInstall, "no-install", new FlagOptions{Description = "Flag to stop add before installing (default: false)", Optional = true})
-                      .WithFlag(d => d.NoStart, "no-start", new FlagOptions{Description = "Flag to stop add before starting (default: false)", Optional = true})
+                      .WithFlag(d => d.Tag, "tag", new FlagOptions { Description = "Local name of the GitHub runner", Optional = true })
+                      .WithFlag(d => d.NoDownload, "no-download", new FlagOptions { Description = "Flag to stop add before download (default: false)", Optional = true })
+                      .WithFlag(d => d.NoConfig, "no-config", new FlagOptions { Description = "Flag to stop add before config (default: false)", Optional = true })
+                      .WithFlag(d => d.NoInstall, "no-install", new FlagOptions { Description = "Flag to stop add before installing (default: false)", Optional = true })
+                      .WithFlag(d => d.NoStart, "no-start", new FlagOptions { Description = "Flag to stop add before starting (default: false)", Optional = true })
                       .Build();
     }
 
