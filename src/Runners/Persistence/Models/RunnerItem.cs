@@ -11,9 +11,11 @@ public sealed class RunnerItem
     
     public required string GitUrl { get; init; }
     
-    public required string FolderPath { get; init; }
-    
     public required DateTimeOffset CreatedAt { get; init; }
+    
+    public DateTimeOffset? UpdatedAt { get; set; }
+    
+    public required string FolderPath { get; set; }
     
     public RunnerState State { get; set; }
     
@@ -30,5 +32,5 @@ public enum RunnerState
     Installed = 3,
     Started = 4,
     Stopped = 5,
-    Deleted = 99,
+    Deleted = 99
 }

@@ -106,7 +106,7 @@ public sealed class AddCommand : BaseCommand<AddCommand.AddCommandData>, IComman
         if (isFailure)
             return Result.Failure<RunnerItem>(error);
 
-        (_, isFailure, var folderPath, error) = _manager.GetRunnerFolder(runnerName);
+        (_, isFailure, var folderPath, error) = await _manager.GetRunnerFolder(runnerName, cancellationToken);
 
         if (isFailure)
             return Result.Failure<RunnerItem>(error);
@@ -119,6 +119,7 @@ public sealed class AddCommand : BaseCommand<AddCommand.AddCommandData>, IComman
             CreatedAt = _timeProvider.GetUtcNow(),
             Tag = Data.Tag
         };
+        
         await _dbContext.RunnerItems.AddAsync(runner, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
         

@@ -10,14 +10,17 @@ public sealed class DeleteCommand : BaseCommand<DeleteCommand.DeleteCommandData>
 {
     private readonly IRunnersDbContext _dbContext;
     private readonly IRunnerManager _manager;
+    private readonly TimeProvider _timeProvider;
     private readonly ILogger<SetCommand> _logger;
 
     public DeleteCommand(IRunnersDbContext dbContext, 
                          IRunnerManager manager, 
+                         TimeProvider timeProvider,
                          ILogger<SetCommand> logger)
     {
         _dbContext = dbContext;
         _manager = manager;
+        _timeProvider = timeProvider;
         _logger = logger;
     }
     
@@ -42,6 +45,7 @@ public sealed class DeleteCommand : BaseCommand<DeleteCommand.DeleteCommandData>
 
         var result = await _manager.DeleteRunner(runner, cancellationToken);
 
+        runner.UpdatedAt = _timeProvider.GetUtcNow();
         runner.Deleted = true;
         runner.State = RunnerState.Deleted;
         _dbContext.RunnerItems.Update(runner);

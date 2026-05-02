@@ -11,7 +11,7 @@ public sealed class RunnerManagerCreateNameTests
         // arrange
         const string url = "https://github.com/UltraSlime/SlimeTools.Commander";
         const string expectedName = "UltraSlime_SlimeTools.Commander";
-        var sut = new RunnerManager(null!, null!, null!, null!);
+        var sut = new RunnerManager(null!, null!, null!, null!, null!);
 
         // act
         var (isSuccess, _, value) = sut.CreateName(url);
@@ -27,7 +27,7 @@ public sealed class RunnerManagerCreateNameTests
         // arrange
         const string url = "https://github.com/UltraSlime/SlimeTools.Commander/docs";
         const string expectedError = "Invalid format of GitHub url";
-        var sut = new RunnerManager(null!, null!, null!, null!);
+        var sut = new RunnerManager(null!, null!, null!, null!, null!);
 
         // act
         var (isSuccess, _, _, error) = sut.CreateName(url);

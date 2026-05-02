@@ -52,6 +52,7 @@ public class Program
           .AddSingleton<IRuntimeInformationProvider, RuntimeInformationProvider>()
           .AddSingleton<ICommandProvider, CommandProvider>()
           .AddSingleton<IFileSystemManager, FileSystemManager>()
+          .AddSingleton<IAppSettingsManager, AppSettingsManager>()
           .AddSingleton(TimeProvider.System);
 
         sc.AddCommands(args, builder =>

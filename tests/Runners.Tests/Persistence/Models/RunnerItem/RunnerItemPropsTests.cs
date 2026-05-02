@@ -17,7 +17,7 @@ public sealed class RunnerItemPropsTests
             Name = null!,
             GitUrl = null!,
             FolderPath = null!,
-            CreatedAt = default,
+            CreatedAt = default
         };
 
         // assert
@@ -36,7 +36,7 @@ public sealed class RunnerItemPropsTests
             Name = expectedName,
             GitUrl = null!,
             FolderPath = null!,
-            CreatedAt = default,
+            CreatedAt = default
         };
 
         // assert
@@ -55,7 +55,7 @@ public sealed class RunnerItemPropsTests
             Name = null!,
             GitUrl = expectedGitUrl,
             FolderPath = null!,
-            CreatedAt = default,
+            CreatedAt = default
         };
 
         // assert
@@ -74,7 +74,7 @@ public sealed class RunnerItemPropsTests
             Name = null!,
             GitUrl = null!,
             FolderPath = expectedFolderPath,
-            CreatedAt = default,
+            CreatedAt = default
         };
 
         // assert
@@ -94,11 +94,32 @@ public sealed class RunnerItemPropsTests
             Name = null!,
             GitUrl = null!,
             FolderPath = null!,
-            CreatedAt = expectedCreatedAt,
+            CreatedAt = expectedCreatedAt
         };
 
         // assert
         Assert.Equal(expectedCreatedAt, sut.CreatedAt);
+    }
+
+    [Fact]
+    public void Should_InitUpdatedAt()
+    {
+        // arrange
+        const long expectedTicks = 638379936000000000;
+        var expectedUpdatedAt = new DateTimeOffset(expectedTicks, TimeSpan.Zero);
+
+        // act
+        var sut = new RunnerItem
+        {
+            Name = null!,
+            GitUrl = null!,
+            FolderPath = null!,
+            CreatedAt = default,
+            UpdatedAt = expectedUpdatedAt
+        };
+
+        // assert
+        Assert.Equal(expectedUpdatedAt, sut.UpdatedAt);
     }
 
     [Fact]
@@ -114,7 +135,7 @@ public sealed class RunnerItemPropsTests
             GitUrl = null!,
             FolderPath = null!,
             CreatedAt = default,
-            State = expectedState,
+            State = expectedState
         };
 
         // assert
@@ -132,7 +153,7 @@ public sealed class RunnerItemPropsTests
             GitUrl = null!,
             FolderPath = null!,
             CreatedAt = default,
-            State = default,
+            State = default
         };
 
         // act
@@ -154,7 +175,7 @@ public sealed class RunnerItemPropsTests
             Name = null!,
             GitUrl = null!,
             FolderPath = null!,
-            CreatedAt = default,
+            CreatedAt = default
         };
 
         // assert
@@ -174,7 +195,8 @@ public sealed class RunnerItemPropsTests
             GitUrl = null!,
             FolderPath = null!,
             CreatedAt = default,
-            Tag = expectedTag,
+            UpdatedAt = null,
+            Tag = expectedTag
         };
 
         // assert
@@ -212,7 +234,7 @@ public sealed class RunnerItemPropsTests
             Name = null!,
             GitUrl = null!,
             FolderPath = null!,
-            CreatedAt = default,
+            CreatedAt = default
         };
 
         // assert
@@ -232,7 +254,7 @@ public sealed class RunnerItemPropsTests
             GitUrl = null!,
             FolderPath = null!,
             CreatedAt = default,
-            Deleted = expectedDeleted,
+            Deleted = expectedDeleted
         };
 
         // assert
@@ -272,7 +294,7 @@ public sealed class RunnerItemPropsTests
             Name = null!,
             GitUrl = null!,
             FolderPath = null!,
-            CreatedAt = default,
+            CreatedAt = default
         };
 
         // assert

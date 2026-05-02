@@ -11,8 +11,8 @@ namespace Runners.Services;
 public interface IRunnerManager
 {
     Result<string> CreateName(string gitHubUrl);
-    Result<string> GetRunnerFolder(string runnerName);
-    ValueTask<Result<string>> GetState(RunnerItem runner, CancellationToken token);
+    ValueTask<Result<string>> GetRunnerFolder(string runnerName, CancellationToken cancellationToken);
+    ValueTask<Result<string>> GetState(RunnerItem runner, CancellationToken cancellationToken);
     ValueTask<Result> DownloadRunner(RunnerItem runner, CancellationToken cancellationToken);
     ValueTask<Result> ConfigureRunner(RunnerItem runner, string token, CancellationToken cancellationToken);
     ValueTask<Result> InstallRunner(RunnerItem runner, CancellationToken cancellationToken);
@@ -25,16 +25,19 @@ public sealed class RunnerManager : IRunnerManager
     private readonly IRuntimeInformationProvider _runtimeInformation;
     private readonly ICommandProvider _commandProvider;
     private readonly IFileSystemManager _fileManager;
+    private readonly IAppSettingsManager _appSettingsManager;
     private readonly ILogger<RunnerManager> _logger;
     
     public RunnerManager(IRuntimeInformationProvider runtimeInformation, 
                          ICommandProvider commandProvider,
                          IFileSystemManager fileManager,
+                         IAppSettingsManager appSettingsManager,
                          ILogger<RunnerManager> logger)
     {
         _runtimeInformation = runtimeInformation;
         _commandProvider = commandProvider;
         _fileManager = fileManager;
+        _appSettingsManager = appSettingsManager;
         _logger = logger;
     }
     
@@ -47,9 +50,9 @@ public sealed class RunnerManager : IRunnerManager
                    : $"{uri.Segments[1]}_{uri.Segments[2]}".Replace("/", string.Empty);
     }
 
-    public Result<string> GetRunnerFolder(string runnerName)
+    public async ValueTask<Result<string>> GetRunnerFolder(string runnerName, CancellationToken cancellationToken)
     {
-        var runnersFolder = GetRunnersFolder();
+        var runnersFolder = await GetRunnersFolder(cancellationToken);
         var runnerFolder = Path.Combine(runnersFolder, runnerName);
 
         if (!_fileManager.DirectoryExists(runnerFolder))
@@ -61,14 +64,14 @@ public sealed class RunnerManager : IRunnerManager
         return Result.Success(runnerFolder);
     }
     
-    public async ValueTask<Result<string>> GetState(RunnerItem runner, CancellationToken token)
+    public async ValueTask<Result<string>> GetState(RunnerItem runner, CancellationToken cancellationToken)
     {
         _logger.LogDebug("Getting status for {Runner} with state {State}", runner.Id, runner.State);
         
         var extension = _runtimeInformation.GetShellExtension();
         var fileToCheck = Path.ChangeExtension("svc", extension);
         
-        var result = await RunFile(fileToCheck, ["status"], runner.FolderPath, token);
+        var result = await RunFile(fileToCheck, ["status"], runner.FolderPath, cancellationToken);
         
         if (result.IsFailure)
             return result;
@@ -239,8 +242,13 @@ public sealed class RunnerManager : IRunnerManager
                    : Result.Success();
     }
     
-    private string GetRunnersFolder()
+    private async ValueTask<string> GetRunnersFolder(CancellationToken cancellationToken)
     {
+        var appSettings = await _appSettingsManager.Read(cancellationToken);
+        
+        if(!string.IsNullOrEmpty(appSettings.RunnersFolder))
+            return appSettings.RunnersFolder;
+        
         const string runnersFolder = "runners";
         var dataDir = _runtimeInformation.GetStateDir(_fileManager);
 

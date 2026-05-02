@@ -87,7 +87,7 @@ public sealed class CliCommand : ICommand
             WorkingDirectory =  WorkingDirectory,
             RedirectStandardOutput = redirectOutput,
             RedirectStandardError = redirectOutput,
-            UseShellExecute = !redirectOutput,
+            UseShellExecute = !redirectOutput
         };
     }
 }

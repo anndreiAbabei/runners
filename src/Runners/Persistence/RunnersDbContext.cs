@@ -18,11 +18,7 @@ public interface IRunnersDbContext
 public sealed class RunnersDbContext : DbContext, IRunnersDbContext
 {
     private readonly IRuntimeInformationProvider _runtimeInformationProvider;
-    internal string ConnectionString
-    {
-        get => field ??= CreateDbConnectionString();
-        set;
-    }
+    private string ConnectionString => field ??= CreateDbConnectionString();
 
     public DbSet<RunnerItem> RunnerItems { get; set; }
 
@@ -40,13 +36,16 @@ public sealed class RunnersDbContext : DbContext, IRunnersDbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        
         var entity = modelBuilder.Entity<RunnerItem>();
+        
         entity.HasKey(i => i.Id);
         entity.Property(i => i.Id).UseAutoincrement();
         entity.Property(i => i.Name).HasMaxLength(100).IsRequired();
         entity.Property(i => i.GitUrl).HasMaxLength(200).IsRequired();
         entity.Property(i => i.FolderPath).HasMaxLength(200).IsRequired();
         entity.Property(i => i.CreatedAt).IsRequired();
+        entity.Property(i => i.UpdatedAt);
         entity.Property(i => i.State).HasDefaultValue(RunnerState.Added);
         entity.Property(i => i.Tag).HasMaxLength(200);
         entity.Property(i => i.Deleted).HasDefaultValue(false);
@@ -73,7 +72,7 @@ public sealed class RunnersDbContext : DbContext, IRunnersDbContext
         {
             BrowsableConnectionString = false,
             DataSource = filePath,
-            Mode = SqliteOpenMode.ReadWriteCreate,
+            Mode = SqliteOpenMode.ReadWriteCreate
         };
 
         return connectionString.ToString();
