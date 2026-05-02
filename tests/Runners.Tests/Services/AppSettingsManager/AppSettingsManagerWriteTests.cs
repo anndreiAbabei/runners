@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using NSubstitute;
 using Runners.Persistence;
@@ -49,6 +50,7 @@ public sealed class AppSettingsManagerWriteTests
         stream.RealDispose();
     }
     
+    [ExcludeFromCodeCoverage]
     private sealed class TestStream(MemoryStream ms) : Stream
     {
         private readonly Stream _streamImplementation = ms;

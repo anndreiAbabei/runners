@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using Runners.Services;
 
 namespace Runners.Tests.Services;
@@ -11,7 +13,8 @@ public sealed class FileSystemManagerGetFile
         var filePath = Path.GetTempFileName();
         var file = File.Create(filePath);
         file.Dispose();
-        var sut = new FileSystemManager();
+        var log = Substitute.For<ILogger<FileSystemManager>>();
+        var sut = new FileSystemManager(log);
 
         try
         {
@@ -36,7 +39,8 @@ public sealed class FileSystemManagerGetFile
         var filePath = Path.GetTempFileName();
         if(File.Exists(filePath))
             File.Delete(filePath);
-        var sut = new FileSystemManager();
+        var log = Substitute.For<ILogger<FileSystemManager>>();
+        var sut = new FileSystemManager(log);
 
         try
         {

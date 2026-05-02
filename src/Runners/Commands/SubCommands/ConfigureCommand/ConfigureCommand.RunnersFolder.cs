@@ -1,5 +1,6 @@
 using CSharpFunctionalExtensions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Runners.Persistence;
 using SlimeTools.Commander;
 
@@ -16,10 +17,14 @@ public sealed partial class ConfigureCommand
 
             return Failure($"Using the {runnersFolderFlag} requires the {migrateStrategyFlag} flag.");
         }
+        
         var migrationStrategy = Data.MigrateRunners.Value;
 
         var existingRunners = await _dbContext.RunnerItems.Where(ri => !ri.Deleted)
                                               .ToListAsync(cancellationToken);
+        
+        _logger.LogInformation("Starting migrate {CountRunners} runners folder to {NewLocation} using {MigrationStrategy}", 
+                               existingRunners.Count, newLocation, migrationStrategy);
         
         if(existingRunners.Count > 0 && migrationStrategy != MigrateRunnersStrategy.Ignore)
         {
@@ -45,6 +50,8 @@ public sealed partial class ConfigureCommand
             
             if (resultMigration.IsFailure)
                 return resultMigration;
+            
+            _logger.LogDebug("Migrated runner {RunnerName} with {MigrationStrategy}", runnerItem.Name, migrationStrategy);
             
             runnerItem.UpdatedAt = _timeProvider.GetUtcNow();
             _dbContext.RunnerItems.Update(runnerItem);

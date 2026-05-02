@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Runners.Commands;
 using Runners.Logging;
@@ -6,6 +7,7 @@ using Runners.Middlewares;
 using Runners.Persistence;
 using Runners.Services;
 using Runners.Services.Commands;
+using Serilog;
 using SlimeTools.Commander;
 
 namespace Runners;
@@ -20,7 +22,7 @@ public class Program
         // args = ["set", "1", "stop"]
         // args = ["set", "1", "start"]
         // args = ["delete", "1", "--yes"]
-        // args = ["version"]
+        args = ["help"]
         ;
 #endif
         var sp = CreateServices(args);
@@ -53,6 +55,7 @@ public class Program
           .AddSingleton<ICommandProvider, CommandProvider>()
           .AddSingleton<IFileSystemManager, FileSystemManager>()
           .AddSingleton<IAppSettingsManager, AppSettingsManager>()
+          .AddSingleton<IConsolePrint, ConsolePrintWithLogging>()
           .AddSingleton(TimeProvider.System);
 
         sc.AddCommands(args, builder =>
@@ -66,11 +69,17 @@ public class Program
             builder.AddCommand<VersionCommand>();
         });
 
-        const LogLevel logLevel = LogLevel.Information;
-        var logFile = $"log{DateTime.UtcNow:yyyy-MM-ddTHHmmss}.log";
-        sc.AddLogging(lb => lb.SetMinimumLevel(logLevel)
-                              .AddSimpleConsole(c => c.SingleLine = true)
-                              .AddProvider(new FileLoggingProvider(logFile, logLevel)));
+        var logFile = Path.Combine("logs", $"log{DateTime.UtcNow:yyyy-MM-ddTHHmmss}.log");
+        Directory.CreateDirectory(Path.GetDirectoryName(logFile)!);
+        
+        var c = new ConfigurationBuilder().AddJsonFile("appsettings.json", false, true)
+                                          .Build();
+        
+        Log.Logger = new LoggerConfiguration()
+                     .ReadFrom.Configuration(c)
+                     .CreateLogger();
+
+        sc.AddLogging(lb => lb.AddSerilog());
 
         sc.AddDbContext<IRunnersDbContext, RunnersDbContext>(); 
 

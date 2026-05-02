@@ -1,11 +1,14 @@
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Runners.Persistence;
 using Runners.Services;
 
 namespace Runners.Tests.Persistence;
 
+[SuppressMessage("Reliability", "CA2012:Use ValueTasks correctly", Justification = "Used for mocking")]
 public sealed class RunnersDbContextOnModelCreatingTests
 {
     [Fact]
@@ -14,9 +17,15 @@ public sealed class RunnersDbContextOnModelCreatingTests
         // arrange
         const string expectedProperty = nameof(RunnerItem.Id);
         var runtime = Substitute.For<IRuntimeInformationProvider>();
+        var fs = Substitute.For<IFileSystemManager>();
+        var appSettingsManager = Substitute.For<IAppSettingsManager>();
+        var log = Substitute.For<ILogger<RunnersDbContext>>();
+        using var ctx = new RunnersDbContext(runtime, fs, appSettingsManager, log);
+        
+        appSettingsManager.Read(Arg.Any<CancellationToken>())
+                          .Returns(_ => ValueTask.FromResult<IAppSettings>(new AppSettings()));
         
         // act
-        using var ctx = new RunnersDbContext(runtime);
         var entity = ctx.Model.FindEntityType(typeof(RunnerItem));
         
         // assert
@@ -34,9 +43,15 @@ public sealed class RunnersDbContextOnModelCreatingTests
         const string propertyName = nameof(RunnerItem.Id);
         const ValueGenerated expectedGeneration = ValueGenerated.OnAdd;
         var runtime = Substitute.For<IRuntimeInformationProvider>();
+        var fs = Substitute.For<IFileSystemManager>();
+        var appSettingsManager = Substitute.For<IAppSettingsManager>();
+        var log = Substitute.For<ILogger<RunnersDbContext>>();
+        using var ctx = new RunnersDbContext(runtime, fs, appSettingsManager, log);
+        
+        appSettingsManager.Read(Arg.Any<CancellationToken>())
+                          .Returns(_ => ValueTask.FromResult<IAppSettings>(new AppSettings()));
         
         // act
-        using var ctx = new RunnersDbContext(runtime);
         var entity = ctx.Model.FindEntityType(typeof(RunnerItem));
         
         // assert
@@ -53,9 +68,15 @@ public sealed class RunnersDbContextOnModelCreatingTests
         const string expectedProperty = nameof(RunnerItem.Name);
         const int expectedLength = 100;
         var runtime = Substitute.For<IRuntimeInformationProvider>();
+        var fs = Substitute.For<IFileSystemManager>();
+        var appSettingsManager = Substitute.For<IAppSettingsManager>();
+        var log = Substitute.For<ILogger<RunnersDbContext>>();
+        using var ctx = new RunnersDbContext(runtime, fs, appSettingsManager, log);
+        
+        appSettingsManager.Read(Arg.Any<CancellationToken>())
+                          .Returns(_ => ValueTask.FromResult<IAppSettings>(new AppSettings()));
         
         // act
-        using var ctx = new RunnersDbContext(runtime);
         var entity = ctx.Model.FindEntityType(typeof(RunnerItem));
 
         // assert
@@ -69,9 +90,15 @@ public sealed class RunnersDbContextOnModelCreatingTests
         const string expectedProperty = nameof(RunnerItem.GitUrl);
         const int expectedLength = 200;
         var runtime = Substitute.For<IRuntimeInformationProvider>();
+        var fs = Substitute.For<IFileSystemManager>();
+        var appSettingsManager = Substitute.For<IAppSettingsManager>();
+        var log = Substitute.For<ILogger<RunnersDbContext>>();
+        using var ctx = new RunnersDbContext(runtime, fs, appSettingsManager, log);
+        
+        appSettingsManager.Read(Arg.Any<CancellationToken>())
+                          .Returns(_ => ValueTask.FromResult<IAppSettings>(new AppSettings()));
         
         // act
-        using var ctx = new RunnersDbContext(runtime);
         var entity = ctx.Model.FindEntityType(typeof(RunnerItem));
 
         // assert
@@ -85,9 +112,15 @@ public sealed class RunnersDbContextOnModelCreatingTests
         const string expectedProperty = nameof(RunnerItem.FolderPath);
         const int expectedLength = 200;
         var runtime = Substitute.For<IRuntimeInformationProvider>();
+        var fs = Substitute.For<IFileSystemManager>();
+        var appSettingsManager = Substitute.For<IAppSettingsManager>();
+        var log = Substitute.For<ILogger<RunnersDbContext>>();
+        using var ctx = new RunnersDbContext(runtime, fs, appSettingsManager, log);
+        
+        appSettingsManager.Read(Arg.Any<CancellationToken>())
+                          .Returns(_ => ValueTask.FromResult<IAppSettings>(new AppSettings()));
         
         // act
-        using var ctx = new RunnersDbContext(runtime);
         var entity = ctx.Model.FindEntityType(typeof(RunnerItem));
 
         // assert
@@ -100,9 +133,15 @@ public sealed class RunnersDbContextOnModelCreatingTests
         // arrange
         const string expectedProperty = nameof(RunnerItem.CreatedAt);
         var runtime = Substitute.For<IRuntimeInformationProvider>();
+        var fs = Substitute.For<IFileSystemManager>();
+        var appSettingsManager = Substitute.For<IAppSettingsManager>();
+        var log = Substitute.For<ILogger<RunnersDbContext>>();
+        using var ctx = new RunnersDbContext(runtime, fs, appSettingsManager, log);
+        
+        appSettingsManager.Read(Arg.Any<CancellationToken>())
+                          .Returns(_ => ValueTask.FromResult<IAppSettings>(new AppSettings()));
         
         // act
-        using var ctx = new RunnersDbContext(runtime);
         var entity = ctx.Model.FindEntityType(typeof(RunnerItem));
 
         // assert
@@ -120,9 +159,15 @@ public sealed class RunnersDbContextOnModelCreatingTests
         const string expectedProperty = nameof(RunnerItem.State);
         const RunnerState expectedState = RunnerState.Added;
         var runtime = Substitute.For<IRuntimeInformationProvider>();
+        var fs = Substitute.For<IFileSystemManager>();
+        var appSettingsManager = Substitute.For<IAppSettingsManager>();
+        var log = Substitute.For<ILogger<RunnersDbContext>>();
+        using var ctx = new RunnersDbContext(runtime, fs, appSettingsManager, log);
+        
+        appSettingsManager.Read(Arg.Any<CancellationToken>())
+                          .Returns(_ => ValueTask.FromResult<IAppSettings>(new AppSettings()));
         
         // act
-        using var ctx = new RunnersDbContext(runtime);
         var entity = ctx.Model.FindEntityType(typeof(RunnerItem));
 
         // assert
@@ -140,9 +185,15 @@ public sealed class RunnersDbContextOnModelCreatingTests
         const string expectedProperty = nameof(RunnerItem.Tag);
         const int expectedLength = 200;
         var runtime = Substitute.For<IRuntimeInformationProvider>();
+        var fs = Substitute.For<IFileSystemManager>();
+        var appSettingsManager = Substitute.For<IAppSettingsManager>();
+        var log = Substitute.For<ILogger<RunnersDbContext>>();
+        using var ctx = new RunnersDbContext(runtime, fs, appSettingsManager, log);
+        
+        appSettingsManager.Read(Arg.Any<CancellationToken>())
+                          .Returns(_ => ValueTask.FromResult<IAppSettings>(new AppSettings()));
         
         // act
-        using var ctx = new RunnersDbContext(runtime);
         var entity = ctx.Model.FindEntityType(typeof(RunnerItem));
 
         // assert
@@ -156,9 +207,15 @@ public sealed class RunnersDbContextOnModelCreatingTests
         const string expectedProperty = nameof(RunnerItem.Deleted);
         const bool expectedDeleted = false;
         var runtime = Substitute.For<IRuntimeInformationProvider>();
+        var fs = Substitute.For<IFileSystemManager>();
+        var appSettingsManager = Substitute.For<IAppSettingsManager>();
+        var log = Substitute.For<ILogger<RunnersDbContext>>();
+        using var ctx = new RunnersDbContext(runtime, fs, appSettingsManager, log);
+        
+        appSettingsManager.Read(Arg.Any<CancellationToken>())
+                          .Returns(_ => ValueTask.FromResult<IAppSettings>(new AppSettings()));
         
         // act
-        using var ctx = new RunnersDbContext(runtime);
         var entity = ctx.Model.FindEntityType(typeof(RunnerItem));
 
         // assert

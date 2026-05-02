@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using Runners.Persistence;
 using Runners.Services;
@@ -18,8 +19,11 @@ public sealed class RunnersDbContextPropsTests
                       .UseSqlite(connection)
                       .Options;
         var runtime = Substitute.For<IRuntimeInformationProvider>();
-
-        await using var ctx = new RunnersDbContext(runtime, options);
+        var fs = Substitute.For<IFileSystemManager>();
+        var appSettingsManager = Substitute.For<IAppSettingsManager>();
+        var log = Substitute.For<ILogger<RunnersDbContext>>();
+        
+        await using var ctx = new RunnersDbContext(runtime, options, fs, appSettingsManager, log);
         await ctx.Database.MigrateAsync();
         
         // act

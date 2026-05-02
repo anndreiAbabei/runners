@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using Runners.Services;
 
 namespace Runners.Tests.Services;
@@ -9,7 +11,7 @@ public sealed class FileSystemManagerDirectoryCopyTests
     {
         // arrange
         const string fileName = "file.txt";
-        var sut = new FileSystemManager();
+        var sut = new FileSystemManager(Substitute.For<ILogger<FileSystemManager>>());
         var tempPath = Path.Combine(Path.GetTempPath(), "Runners.Tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempPath);
         var fileData = Path.Combine(tempPath, fileName);
@@ -43,7 +45,7 @@ public sealed class FileSystemManagerDirectoryCopyTests
         // arrange
         const string fileName = "file.txt";
         const string subDir = "subdir";
-        var sut = new FileSystemManager();
+        var sut = new FileSystemManager(Substitute.For<ILogger<FileSystemManager>>());
         var tempPath = Path.Combine(Path.GetTempPath(), "Runners.Tests", Guid.NewGuid().ToString("N"));
         var tempSubPath = Path.Combine(tempPath, subDir);
         Directory.CreateDirectory(tempPath);

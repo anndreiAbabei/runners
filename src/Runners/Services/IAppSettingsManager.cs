@@ -11,6 +11,7 @@ public interface IAppSettingsManager
 
 public sealed class AppSettingsManager : IAppSettingsManager
 {
+    private IAppSettings? _appSettings;
     private readonly IFileSystemManager _fileSystemManager;
     private static readonly JsonSerializerOptions? Options = new JsonSerializerOptions
     {
@@ -26,14 +27,17 @@ public sealed class AppSettingsManager : IAppSettingsManager
     
     public async ValueTask<IAppSettings> Read(CancellationToken cancellationToken = default)
     {
+        if(_appSettings != null)
+            return _appSettings;
+        
         await using var file = _fileSystemManager.GetFile(AppSettingsFileName, FileMode.Open, FileAccess.Read);
 
         if (file == null)
-            return new AppSettings();
+            return _appSettings = new AppSettings();
         
-        var settings = await JsonSerializer.DeserializeAsync<AppSettings>(file, Options, cancellationToken);
-        
-        return settings ?? new AppSettings();
+        _appSettings = await JsonSerializer.DeserializeAsync<AppSettings>(file, Options, cancellationToken) ?? new AppSettings();
+
+        return _appSettings;
     }
 
     public async ValueTask Write(IAppSettings appSettings, CancellationToken cancellationToken = default)
@@ -43,6 +47,8 @@ public sealed class AppSettingsManager : IAppSettingsManager
         if(file == null)
             return;
         
-        await JsonSerializer.SerializeAsync(file, appSettings, Options, cancellationToken);
+        _appSettings = appSettings;
+        
+        await JsonSerializer.SerializeAsync(file, _appSettings, Options, cancellationToken);
     }
 }

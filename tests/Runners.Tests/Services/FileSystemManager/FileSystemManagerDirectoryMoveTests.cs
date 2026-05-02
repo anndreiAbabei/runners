@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using Runners.Services;
 
 namespace Runners.Tests.Services;
@@ -9,7 +11,8 @@ public sealed class FileSystemManagerDirectoryMoveTests
     {
         // arrange
         const string fileName = "file.txt";
-        var sut = new FileSystemManager();
+        var log = Substitute.For<ILogger<FileSystemManager>>();
+        var sut = new FileSystemManager(log);
         var tempPath = Path.Combine(Path.GetTempPath(), "Runners.Tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempPath);
         var fileData = Path.Combine(tempPath, fileName);

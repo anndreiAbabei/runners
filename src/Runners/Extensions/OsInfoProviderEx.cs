@@ -22,7 +22,7 @@ public static class FileLocationProviderEx
 {
     extension(IRuntimeInformationProvider provider)
     {
-        public string GetStateDir(IFileSystemManager? fileSystem = null)
+        public string GetStateDir(IFileSystemManager fileSystem)
         {
             string folder;
             

@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using Runners.Services;
 
 namespace Runners.Tests.Services;
@@ -8,7 +10,8 @@ public sealed class FileSystemManagerDirectoryDeleteTests
     public void Should_DeleteDirectory()
     {
         // arrange
-        var sut = new FileSystemManager();
+        var log = Substitute.For<ILogger<FileSystemManager>>();
+        var sut = new FileSystemManager(log);
         var tempPath = Path.Combine(Path.GetTempPath(), "Runners.Tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempPath);
 
@@ -23,9 +26,7 @@ public sealed class FileSystemManagerDirectoryDeleteTests
         finally
         {
             if (Directory.Exists(tempPath))
-            {
                 Directory.Delete(tempPath, false);
-            }
         }
     }
 }

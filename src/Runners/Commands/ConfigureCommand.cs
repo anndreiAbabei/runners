@@ -1,5 +1,4 @@
 using CSharpFunctionalExtensions;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Runners.Persistence;
 using Runners.Services;
@@ -34,20 +33,21 @@ public sealed partial class ConfigureCommand : BaseCommand<ConfigureCommand.Conf
     public static ICommandStructure CreateCommand(ICommandBuilder builder)
     {
         return builder.Create<ConfigureCommandData>("config")
-                      .WithFlag(d => d.RunnersFolder, options: FlagOptions.Description("Set the runners folder. " +
+                      .WithFlag(d => d.RunnersFolder, options: FlagOptions.Named("runners-folder").Optional()
+                                                                          .Description("Set the runners folder. " +
                                                                                        "If there are existing runners in the previous/default runners folder you must provide " +
                                                                                        $"the {nameof(ConfigureCommandData.MigrateRunners)} flag.")
-                                                                          .Optional()
-                                                                          .Named("runners-folder")
                                                                           .Example("./runners"))
-                      .WithFlag(d => d.MigrateRunners, options: FlagOptions.Description($"Strategy used when the {nameof(ConfigureCommandData.RunnersFolder)} is used to migrate the existing runners." +
+                      .WithFlag(d => d.MigrateRunners, options: FlagOptions.Named("migrate-runners").Optional()
+                                                                           .Description($"Strategy used when the {nameof(ConfigureCommandData.RunnersFolder)} is used to migrate the existing runners." +
                                                                                         $"- ignore: Ignores the existing runners folder." +
                                                                                         $"- copy: If any existing runners, copy the them into the new location." +
                                                                                         $"- move: If any existing runners, move the them into the new location." +
                                                                                         $"- clean: If any existing runners, delete them! (without bringing it to the new location) - WARNING: IT DELETES DATA!")
-                                                                           .Optional()
-                                                                           .Named("migrate-runners")
                                                                            .Example("./runners"))
+                      .WithFlag(d => d.DbFilePath, options: FlagOptions.Named("db-file-path").Optional()
+                                                                       .Description("Set the db file path.")
+                                                                       .Example("./runners.db"))
                       .Build();
     }
     
@@ -60,12 +60,20 @@ public sealed partial class ConfigureCommand : BaseCommand<ConfigureCommand.Conf
                 return result;
         }
 
+        if (!string.IsNullOrEmpty(Data.DbFilePath))
+        {
+            var result = await SetDbFilePath(Data.DbFilePath, cancellationToken);
+            if (result.IsFailure)
+                return result;
+        }
+
         return Success;
     }
     
     public class ConfigureCommandData : ICommandData, IAppSettings
     {
         public string? RunnersFolder { get; set; }
+        public string? DbFilePath { get; set; }
         public MigrateRunnersStrategy? MigrateRunners { get; init; }
     }
 }

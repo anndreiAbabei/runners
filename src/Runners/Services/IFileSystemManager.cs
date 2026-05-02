@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+
 namespace Runners.Services;
 
 public interface IFileSystemManager
@@ -13,19 +15,57 @@ public interface IFileSystemManager
 
 public sealed class FileSystemManager : IFileSystemManager
 {
+    private readonly ILogger<FileSystemManager> _logger;
+    
+    public FileSystemManager(ILogger<FileSystemManager> logger)
+    {
+        _logger = logger;
+    }
+    
     public Stream? GetFile(string path, FileMode fileMode, FileAccess fileAccess)
     {
-        return File.Exists(path) 
-                   ? File.Open(path, fileMode, fileAccess) 
-                   : null;
+        if (!File.Exists(path))
+        {
+            _logger.LogWarning("Getting file {File} using {FileMode} with {FileAccess} but not found.", path, fileMode, fileAccess);
+            return null;
+        }
+        
+        _logger.LogDebug("Getting file {File} using {FileMode} with {FileAccess}", path, fileMode, fileAccess);
+        
+        return File.Open(path, fileMode, fileAccess);
     }
-    public bool DirectoryExists(string path) => Directory.Exists(path);
-    public void DirectoryCreate(string path) => Directory.CreateDirectory(path);
-    public void DirectoryDelete(string path, bool recursive) => Directory.Delete(path, recursive);
     
-    public void DirectoryMove(string path, string destination) => Directory.Move(path, destination);
+    public bool DirectoryExists(string path)
+    {
+        _logger.LogDebug("Checking if directory {Path}", path);
+        
+        return Directory.Exists(path);
+    }
+    
+    public void DirectoryCreate(string path)
+    {
+        _logger.LogDebug("Creating directory {Path}", path);
+        
+        Directory.CreateDirectory(path);
+    }
+    
+    public void DirectoryDelete(string path, bool recursive)
+    {
+        _logger.LogDebug("Deleting directory {Path} (Recursive: {Recursive})", path, recursive);
+        
+        Directory.Delete(path, recursive);
+    }
+
+    public void DirectoryMove(string path, string destination)
+    {
+        _logger.LogDebug("Moving directory {Path} to {Destination}", path, destination);
+        Directory.Move(path, destination);
+    }
+    
     public void DirectoryCopy(string path, string destination)
     {
+        _logger.LogDebug("Copying directory {Path} to {Destination}", path, destination);
+        
         var diSource = new DirectoryInfo(path);
         var diTarget = new DirectoryInfo(destination);
 

@@ -4,33 +4,33 @@ namespace Runners.Logging;
 
 public sealed class FileLoggingProvider : ILoggerProvider
 {
-    private readonly StreamWriter _streamWriter;
+    private readonly TextWriter _textWriter;
     private readonly LogLevel _minimumLogLevel;
     
     public FileLoggingProvider(string filePath, LogLevel minimumLogLevel)
     {
-        _streamWriter = new StreamWriter(filePath)
+        _textWriter = new StreamWriter(filePath)
         {
             AutoFlush = true
         };
         _minimumLogLevel = minimumLogLevel;
-
     }
     
-    public ILogger CreateLogger(string categoryName) => new FileLogger(categoryName, _streamWriter, _minimumLogLevel);
+    public ILogger CreateLogger(string categoryName) => new FileLogger(categoryName, _textWriter, _minimumLogLevel);
     
-    public void Dispose() => _streamWriter.Dispose();
+    public void Dispose() => _textWriter.Dispose();
 }
 
 internal sealed class FileLogger : ILogger
 {
     private readonly string _categoryName;
-    private readonly StreamWriter _streamWriter;
+    private readonly TextWriter _writer;
     private readonly LogLevel _minimumLogLevel;
-    public FileLogger(string categoryName, StreamWriter streamWriter, LogLevel minimumLogLevel)
+    
+    public FileLogger(string categoryName, TextWriter writer, LogLevel minimumLogLevel)
     {
         _categoryName = categoryName;
-        _streamWriter = streamWriter;
+        _writer = writer;
         _minimumLogLevel = minimumLogLevel;
     }
 
@@ -41,7 +41,7 @@ internal sealed class FileLogger : ILogger
         
         var message = formatter(state, exception);
 
-        _streamWriter.WriteLine($"[{logLevel}] [{_categoryName}] {message}");
+        _writer.WriteLine($"[{logLevel}] [{_categoryName}] {message}");
     }
     
     public bool IsEnabled(LogLevel logLevel) => logLevel >= _minimumLogLevel;

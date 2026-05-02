@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.Json;
 using NSubstitute;
 using Runners.Persistence;
@@ -60,6 +61,7 @@ public sealed class AppSettingsManagerReadTests
     }
 }
 
+[ExcludeFromCodeCoverage]
 internal sealed class AppSettingsComparer : IEqualityComparer<IAppSettings>
 {
     public static IEqualityComparer<IAppSettings> Default { get; } = new AppSettingsComparer();

@@ -1,3 +1,5 @@
+using Microsoft.Extensions.Logging;
+using NSubstitute;
 using Runners.Services;
 
 namespace Runners.Tests.Services;
@@ -8,7 +10,8 @@ public sealed class FileSystemManagerDirectoryExistsTests
     public void Should_ReturnTrue_WhenDirectoryExists()
     {
         // arrange
-        var sut = new FileSystemManager();
+        var log = Substitute.For<ILogger<FileSystemManager>>();
+        var sut = new FileSystemManager(log);
         var tempPath = Path.Combine(Path.GetTempPath(), "Runners.Tests", Guid.NewGuid().ToString("N"));
         Directory.CreateDirectory(tempPath);
 
@@ -23,9 +26,7 @@ public sealed class FileSystemManagerDirectoryExistsTests
         finally
         {
             if (Directory.Exists(tempPath))
-            {
                 Directory.Delete(tempPath, false);
-            }
         }
     }
 
@@ -33,7 +34,8 @@ public sealed class FileSystemManagerDirectoryExistsTests
     public void Should_ReturnFalse_WhenDirectoryDoesNotExist()
     {
         // arrange
-        var sut = new FileSystemManager();
+        var log = Substitute.For<ILogger<FileSystemManager>>();
+        var sut = new FileSystemManager(log);
         var tempPath = Path.Combine(Path.GetTempPath(), "Runners.Tests", Guid.NewGuid().ToString("N"));
 
         try
@@ -47,9 +49,7 @@ public sealed class FileSystemManagerDirectoryExistsTests
         finally
         {
             if (Directory.Exists(tempPath))
-            {
                 Directory.Delete(tempPath, false);
-            }
         }
     }
 }
