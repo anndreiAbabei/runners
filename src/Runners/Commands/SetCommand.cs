@@ -27,7 +27,7 @@ public sealed class SetCommand : BaseCommand<SetCommand.SetCommandData>, IComman
         return builder.Create<SetCommandData>("set", new CommandDetails { Description = "Change the state of a runner." })
                       .WithArg(d => d.RunnerId, new ArgumentOptions { Description = "Id of the runner that you want to set the state.", Optional = false })
                       .WithArg(d => d.State, new ArgumentOptions { Description = "State of the runner.", Optional = false })
-                      .WithFlag(d => d.Force, "force", new FlagOptions{ Description = "Force set of the runner, bypassing validation of current state.", Optional = false })
+                      .WithFlag(d => d.Force, "force", new FlagOptions{ Description = "Force set of the runner, bypassing validation of current state.", Optional = true })
                       .Build();
     }
 

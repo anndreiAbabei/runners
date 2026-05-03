@@ -59,6 +59,7 @@ public sealed class RunnersDbContext : DbContext, IRunnersDbContext
         entity.Property(i => i.Id).UseAutoincrement();
         entity.Property(i => i.Name).HasMaxLength(100).IsRequired();
         entity.Property(i => i.GitUrl).HasMaxLength(200).IsRequired();
+        entity.Property(i => i.Token).HasMaxLength(200).IsRequired();
         entity.Property(i => i.FolderPath).HasMaxLength(200).IsRequired();
         entity.Property(i => i.CreatedAt).IsRequired();
         entity.Property(i => i.UpdatedAt);

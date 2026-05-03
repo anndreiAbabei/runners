@@ -27,14 +27,25 @@ public sealed class AddCommand : BaseCommand<AddCommand.AddCommandData>, IComman
     
     public static ICommandStructure CreateCommand(ICommandBuilder builder)
     {
-        return builder.Create<AddCommandData>("add", new CommandDetails { Description = "Create a new GitHub runner" })
-                      .WithFlag(d => d.GitHubUrl, "url", new FlagOptions { Description = "Url of the GitHub url", Optional = false })
-                      .WithFlag(d => d.Token, "token", new FlagOptions { Description = "Token of the GitHub runner", Optional = false })
-                      .WithFlag(d => d.Tag, "tag", new FlagOptions { Description = "Local name of the GitHub runner", Optional = true })
-                      .WithFlag(d => d.NoDownload, "no-download", new FlagOptions { Description = "Flag to stop add before download (default: false)", Optional = true })
-                      .WithFlag(d => d.NoConfig, "no-config", new FlagOptions { Description = "Flag to stop add before config (default: false)", Optional = true })
-                      .WithFlag(d => d.NoInstall, "no-install", new FlagOptions { Description = "Flag to stop add before installing (default: false)", Optional = true })
-                      .WithFlag(d => d.NoStart, "no-start", new FlagOptions { Description = "Flag to stop add before starting (default: false)", Optional = true })
+#pragma warning disable CS8714
+        return builder.Create<AddCommandData>("add", CommandDetails.Description("Create a new GitHub runner"))
+                      .WithFlag(d => d.GitHubUrl, FlagOptions.Named("url").Optional(false)
+                                                             .Description("Url of the GitHub url"))
+                      .WithFlag(d => d.Token, FlagOptions.Named("token").Optional(false)
+                                                         .Description("Token of the GitHub runner"))
+                      .WithFlag(d => d.DownloadUrl, FlagOptions.Named("download-url").Optional()
+                                                               .Description($"URL used to download the runner (Default version: {RunnerManager.DefaultRunnerDownloadVersion})"))
+                      .WithFlag(d => d.Tag, FlagOptions.Named("tag").Optional()
+                                                       .Description("Local name of the GitHub runner"))
+#pragma warning restore CS8714
+                      .WithFlag(d => d.NoDownload, FlagOptions.Named("no-download").Optional().DefaultValue(false)
+                                                              .Description( "Flag to stop add before download"))
+                      .WithFlag(d => d.NoConfig, FlagOptions.Named("no-config").Optional().DefaultValue(false)
+                                                            .Description( "Flag to stop add before config"))
+                      .WithFlag(d => d.NoInstall, FlagOptions.Named("no-install").Optional().DefaultValue(false)
+                                                             .Description( "Flag to stop add before installing"))
+                      .WithFlag(d => d.NoStart, FlagOptions.Named("no-start").Optional().DefaultValue(false)
+                                                           .Description( "Flag to stop add before starting"))
                       .Build();
     }
 
@@ -116,6 +127,7 @@ public sealed class AddCommand : BaseCommand<AddCommand.AddCommandData>, IComman
             Name = runnerName,
             GitUrl = Data.GitHubUrl,
             FolderPath = folderPath,
+            Token = Data.Token,
             CreatedAt = _timeProvider.GetUtcNow(),
             Tag = Data.Tag
         };
@@ -130,7 +142,7 @@ public sealed class AddCommand : BaseCommand<AddCommand.AddCommandData>, IComman
     
     private async ValueTask<Result> DownloadRunner(RunnerItem runner, CancellationToken cancellationToken)
     {
-        var downloadResult = await _manager.DownloadRunner(runner, cancellationToken);
+        var downloadResult = await _manager.DownloadRunner(runner, cancellationToken, Data.DownloadUrl);
 
         if (downloadResult.IsFailure)
             return downloadResult;
@@ -201,6 +213,8 @@ public sealed class AddCommand : BaseCommand<AddCommand.AddCommandData>, IComman
         public required string GitHubUrl { get; init; }
         
         public required string Token { get; init; }
+        
+        public string? DownloadUrl { get; init; }
         
         public string? Tag { get; init; }
         

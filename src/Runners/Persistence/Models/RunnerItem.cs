@@ -11,6 +11,8 @@ public sealed class RunnerItem
     
     public required string GitUrl { get; init; }
     
+    public required string Token { get; init; }
+    
     public required DateTimeOffset CreatedAt { get; init; }
     
     public DateTimeOffset? UpdatedAt { get; set; }

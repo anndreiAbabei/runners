@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using CSharpFunctionalExtensions;
+using Runners.Extensions;
 
 namespace Runners.Services.Commands;
 
@@ -61,7 +62,7 @@ public sealed class CliCommand : ICommand
         await Task.WhenAll(processTask, outputTask, errorTask);
         
         return p.ExitCode != 0 
-                   ? Result.Failure<string>(await errorTask) 
+                   ? Result.Failure<string>((await errorTask).Default("UNKNOWN ERROR")) 
                    : Result.Success(await outputTask);
     }
     

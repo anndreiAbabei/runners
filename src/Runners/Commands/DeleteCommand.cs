@@ -11,16 +11,19 @@ public sealed class DeleteCommand : BaseCommand<DeleteCommand.DeleteCommandData>
     private readonly IRunnersDbContext _dbContext;
     private readonly IRunnerManager _manager;
     private readonly TimeProvider _timeProvider;
+    private readonly IConsolePrint _consolePrint;
     private readonly ILogger<SetCommand> _logger;
 
     public DeleteCommand(IRunnersDbContext dbContext, 
                          IRunnerManager manager, 
                          TimeProvider timeProvider,
+                         IConsolePrint consolePrint,
                          ILogger<SetCommand> logger)
     {
         _dbContext = dbContext;
         _manager = manager;
         _timeProvider = timeProvider;
+        _consolePrint = consolePrint;
         _logger = logger;
     }
     
@@ -42,6 +45,8 @@ public sealed class DeleteCommand : BaseCommand<DeleteCommand.DeleteCommandData>
 
         if (runner == null)
             return Failure("Runner not found.");
+        
+        _consolePrint.WriteLine($"Token to delete: `{runner.Token}`");
 
         var result = await _manager.DeleteRunner(runner, cancellationToken);
 

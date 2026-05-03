@@ -61,6 +61,8 @@ public class Program
         sc.AddCommands(args, builder =>
         {
             builder.AddMiddleware<ExecuteMigrations>();
+            builder.AddMiddleware<LoggingCommandElapsedMiddleware>();
+            builder.AddMiddleware<LoggingCommandMiddleware>();
         
             builder.AddCommand<ListCommand>();
             builder.AddCommand<AddCommand>();

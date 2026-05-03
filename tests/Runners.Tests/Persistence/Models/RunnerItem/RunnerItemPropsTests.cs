@@ -15,6 +15,7 @@ public sealed class RunnerItemPropsTests
         {
             Id = expectedId,
             Name = null!,
+            Token = null!,
             GitUrl = null!,
             FolderPath = null!,
             CreatedAt = default
@@ -35,6 +36,7 @@ public sealed class RunnerItemPropsTests
         {
             Name = expectedName,
             GitUrl = null!,
+            Token = null!,
             FolderPath = null!,
             CreatedAt = default
         };
@@ -54,12 +56,33 @@ public sealed class RunnerItemPropsTests
         {
             Name = null!,
             GitUrl = expectedGitUrl,
+            Token = null!,
             FolderPath = null!,
             CreatedAt = default
         };
 
         // assert
         Assert.Equal(expectedGitUrl, sut.GitUrl);
+    }
+
+    [Fact]
+    public void Should_InitToken()
+    {
+        // arrange
+        const string expectedToken = "123456test";
+
+        // act
+        var sut = new RunnerItem
+        {
+            Name = null!,
+            GitUrl = null!,
+            Token = expectedToken,
+            FolderPath = null!,
+            CreatedAt = default
+        };
+
+        // assert
+        Assert.Equal(expectedToken, sut.Token);
     }
 
     [Fact]
@@ -73,6 +96,7 @@ public sealed class RunnerItemPropsTests
         {
             Name = null!,
             GitUrl = null!,
+            Token = null!,
             FolderPath = expectedFolderPath,
             CreatedAt = default
         };
@@ -93,6 +117,7 @@ public sealed class RunnerItemPropsTests
         {
             Name = null!,
             GitUrl = null!,
+            Token = null!,
             FolderPath = null!,
             CreatedAt = expectedCreatedAt
         };
@@ -113,6 +138,7 @@ public sealed class RunnerItemPropsTests
         {
             Name = null!,
             GitUrl = null!,
+            Token = null!,
             FolderPath = null!,
             CreatedAt = default,
             UpdatedAt = expectedUpdatedAt
@@ -133,6 +159,7 @@ public sealed class RunnerItemPropsTests
         {
             Name = null!,
             GitUrl = null!,
+            Token = null!,
             FolderPath = null!,
             CreatedAt = default,
             State = expectedState
@@ -151,6 +178,7 @@ public sealed class RunnerItemPropsTests
         {
             Name = null!,
             GitUrl = null!,
+            Token = null!,
             FolderPath = null!,
             CreatedAt = default,
             State = default
@@ -174,6 +202,7 @@ public sealed class RunnerItemPropsTests
         {
             Name = null!,
             GitUrl = null!,
+            Token = null!,
             FolderPath = null!,
             CreatedAt = default
         };
@@ -193,6 +222,7 @@ public sealed class RunnerItemPropsTests
         {
             Name = null!,
             GitUrl = null!,
+            Token = null!,
             FolderPath = null!,
             CreatedAt = default,
             UpdatedAt = null,
@@ -212,6 +242,7 @@ public sealed class RunnerItemPropsTests
         {
             Name = null!,
             GitUrl = null!,
+            Token = null!,
             FolderPath = null!,
             CreatedAt = default,
             Tag = "1234"
@@ -233,6 +264,7 @@ public sealed class RunnerItemPropsTests
         {
             Name = null!,
             GitUrl = null!,
+            Token = null!,
             FolderPath = null!,
             CreatedAt = default
         };
@@ -252,6 +284,7 @@ public sealed class RunnerItemPropsTests
         {
             Name = null!,
             GitUrl = null!,
+            Token = null!,
             FolderPath = null!,
             CreatedAt = default,
             Deleted = expectedDeleted
@@ -270,6 +303,7 @@ public sealed class RunnerItemPropsTests
         {
             Name = null!,
             GitUrl = null!,
+            Token = null!,
             FolderPath = null!,
             CreatedAt = default,
             Deleted = false
@@ -293,6 +327,7 @@ public sealed class RunnerItemPropsTests
         {
             Name = null!,
             GitUrl = null!,
+            Token = null!,
             FolderPath = null!,
             CreatedAt = default
         };

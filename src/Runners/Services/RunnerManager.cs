@@ -13,7 +13,7 @@ public interface IRunnerManager
     Result<string> CreateName(string gitHubUrl);
     ValueTask<Result<string>> GetRunnerFolder(string runnerName, CancellationToken cancellationToken);
     ValueTask<Result<string>> GetState(RunnerItem runner, CancellationToken cancellationToken);
-    ValueTask<Result> DownloadRunner(RunnerItem runner, CancellationToken cancellationToken);
+    ValueTask<Result> DownloadRunner(RunnerItem runner, CancellationToken cancellationToken, string? downloadUrl = null);
     ValueTask<Result> ConfigureRunner(RunnerItem runner, string token, CancellationToken cancellationToken);
     ValueTask<Result> InstallRunner(RunnerItem runner, CancellationToken cancellationToken);
     ValueTask<Result> SetRunner(RunnerItem runner, bool start, CancellationToken cancellationToken);
@@ -27,6 +27,8 @@ public sealed class RunnerManager : IRunnerManager
     private readonly IFileSystemManager _fileManager;
     private readonly IAppSettingsManager _appSettingsManager;
     private readonly ILogger<RunnerManager> _logger;
+    
+    internal const string DefaultRunnerDownloadVersion = "2.334.0";
     
     public RunnerManager(IRuntimeInformationProvider runtimeInformation, 
                          ICommandProvider commandProvider,
@@ -66,47 +68,31 @@ public sealed class RunnerManager : IRunnerManager
     
     public async ValueTask<Result<string>> GetState(RunnerItem runner, CancellationToken cancellationToken)
     {
-        _logger.LogDebug("Getting status for {Runner} with state {State}", runner.Id, runner.State);
+        _logger.LogDebug("Getting status (using sudo) for {Runner} with state {State}", runner.Id, runner.State);
         
         var extension = _runtimeInformation.GetShellExtension();
-        var fileToCheck = Path.ChangeExtension("svc", extension);
+        var svcFile = Path.ChangeExtension("svc", extension);
         
-        var result = await RunFile(fileToCheck, ["status"], runner.FolderPath, cancellationToken);
+        svcFile = Path.Combine(runner.FolderPath, svcFile);
+        string[] args = ["-c", $"sudo {svcFile} status"];
+        
+        var result = await Run(_commandProvider.Shell(), args, runner.FolderPath, cancellationToken);
         
         if (result.IsFailure)
             return result;
         
-        return result.Value.Contains("Started") ? "Live" : "Stopped";
+        return result.Value.Contains("(running)") ? "Live" : "Stopped";
     }
     
-    public async ValueTask<Result> DownloadRunner(RunnerItem runner, CancellationToken cancellationToken)
+    public async ValueTask<Result> DownloadRunner(RunnerItem runner, CancellationToken cancellationToken, string? downloadUrl = null)
     {
-        var arch = _runtimeInformation.ProcessArchitecture switch
-        {
-            Architecture.Arm => "arm",
-            Architecture.Arm64 => "arm64",
-            Architecture.X86 or Architecture.X64 => "x64",
-            _ => null
-        };
+        var resultDwInfo = GetDownloadInfo(downloadUrl);
         
-        string? os = null;
-        if (_runtimeInformation.IsMacOs)
-            os = "osx";
-        else if (_runtimeInformation.IsWindows)
-            os = "win";
-        else if (_runtimeInformation.IsLinux)
-            os = "linux";
+        if(resultDwInfo.IsFailure)
+            return resultDwInfo;
 
-        if (string.IsNullOrEmpty(arch))
-            return Result.Failure($"Invalid architecture (Only supported ARM/64 or x86/64), " +
-                                  $"`{_runtimeInformation.ProcessArchitecture}` is not supported. Get a real processor.");
-        if (string.IsNullOrEmpty(os))
-            return Result.Failure("Invalid OS (Only supported osx, win, linux). get a real OS!");
-
-        var extension = _runtimeInformation.IsWindows ? "zip" : "tar.gz";
-
-        var url = $"https://github.com/actions/runner/releases/download/v2.331.0/actions-runner-{os}-{arch}-2.331.0.{extension}";
-        var fileName = Path.ChangeExtension("actionRunner", extension);
+        var (url, fileName) = resultDwInfo.Value; 
+        
         var filePath = Path.Combine(runner.FolderPath, fileName);
             
         var dwCmd = _runtimeInformation.IsWindows
@@ -166,11 +152,15 @@ public sealed class RunnerManager : IRunnerManager
         var extension = _runtimeInformation.IsWindows ? "cmd" : "sh";
         var svcFile = Path.ChangeExtension("svc", extension);
         
-        _logger.LogDebug("Executing {ConfigFile} install for repo {RunnerRepo} (RunnerId: {RunnerId}) in {RunnerFolder}", 
+        _logger.LogDebug("Executing (as sudo) {ConfigFile} install for repo {RunnerRepo} (RunnerId: {RunnerId}) in {RunnerFolder}", 
                          svcFile, runner.GitUrl, runner.Id, runner.FolderPath);
-        string[] args = [svcFile, "install"];
+        svcFile = Path.Combine(runner.FolderPath, svcFile);
+        string[] args = ["-c", $"sudo {svcFile} install"];
 
-        var result = await RunInShell(_commandProvider.Shell().WithArguments(args), runner.FolderPath, cancellationToken);
+        var result = await RunInShell(_commandProvider.Shell()
+                                                      .WithArguments(args), 
+                                      runner.FolderPath, 
+                                      cancellationToken);
 
         return result;
     }
@@ -181,9 +171,10 @@ public sealed class RunnerManager : IRunnerManager
         var svcFile = Path.ChangeExtension("svc", extension);
         var state = start ? "start" : "stop";
         
-        _logger.LogDebug("Executing {ConfigFile} {State} for repo {RunnerRepo} (RunnerId: {RunnerId}) in {RunnerFolder}", 
+        _logger.LogDebug("Executing (as sudo) {ConfigFile} {State} for repo {RunnerRepo} (RunnerId: {RunnerId}) in {RunnerFolder}", 
                          svcFile, state, runner.GitUrl, runner.Id, runner.FolderPath);
-        string[] args = [svcFile, state];
+        svcFile = Path.Combine(runner.FolderPath, svcFile);
+        string[] args = ["-c", $"sudo {svcFile} {state}"];
 
         var result = await RunInShell(_commandProvider.Shell().WithArguments(args), runner.FolderPath, cancellationToken);
 
@@ -192,14 +183,24 @@ public sealed class RunnerManager : IRunnerManager
     
     public async ValueTask<Result> DeleteRunner(RunnerItem runner, CancellationToken cancellationToken)
     {
+        if (!_fileManager.DirectoryExists(runner.FolderPath))
+            return Result.Success();
+        
         _ = await SetRunner(runner, false, cancellationToken);
         
         var extension = _runtimeInformation.IsWindows ? "cmd" : "sh";
         var svcFile = Path.ChangeExtension("svc", extension);
         var configFile = Path.ChangeExtension("config", extension);
         
-        string[] args = [svcFile, "uninstall"];
+        _logger.LogDebug("Executing (as sudo) {SvcFile} uninstall for repo {RunnerRepo} (RunnerId: {RunnerId}) in {RunnerFolder}", 
+                         svcFile, runner.GitUrl, runner.Id, runner.FolderPath);
+        
+        svcFile = Path.Combine(runner.FolderPath, svcFile);
+        string[] args = ["-c", $"sudo {svcFile} uninstall"];
         var resultSvc = await RunInShell(_commandProvider.Shell().WithArguments(args), runner.FolderPath, cancellationToken);
+        
+        _logger.LogDebug("Executing {ConfigFile} remove for repo {RunnerRepo} (RunnerId: {RunnerId}) in {RunnerFolder}", 
+                         configFile, runner.GitUrl, runner.Id, runner.FolderPath);
         
         args = [configFile, "remove"];
         var resultConfig = await RunInShell(_commandProvider.Shell().WithArguments(args), runner.FolderPath, cancellationToken);
@@ -207,11 +208,6 @@ public sealed class RunnerManager : IRunnerManager
         _fileManager.DirectoryDelete(runner.FolderPath, true);
 
         return Result.Combine(resultSvc, resultConfig);
-    }
-    
-    private ValueTask<Result<string>> RunFile(string file, string[] args, string workingDirectory, CancellationToken cancellationToken)
-    {
-        return Run(_commandProvider.Shell(), [file, ..args], workingDirectory, cancellationToken);
     }
     
     private async ValueTask<Result<string>> Run(ICommand command, string[] args, string workingDirectory, CancellationToken cancellationToken)
@@ -235,7 +231,7 @@ public sealed class RunnerManager : IRunnerManager
                          command.TargetFilePath, command.Arguments, workingDirectory);
         
         var result = await command.WithWorkingDirectory(workingDirectory)
-                                  .Execute(cancellationToken);
+                                  .ExecuteInShell(cancellationToken);
 
         return result.IsFailure 
                    ? Result.Failure($"Fail to run {command.Arguments} with error {result.Error}") 
@@ -254,4 +250,42 @@ public sealed class RunnerManager : IRunnerManager
 
         return Path.Combine(dataDir, runnersFolder);
     }
+    
+    private Result<DownloadInfo> GetDownloadInfo(string? downloadUrl)
+    {
+        var extension = _runtimeInformation.IsWindows ? "zip" : "tar.gz";
+
+        var fileName = Path.ChangeExtension("actionRunner", extension);
+        
+        if(!string.IsNullOrEmpty(downloadUrl))
+            return new DownloadInfo(downloadUrl, fileName);
+        
+        var arch = _runtimeInformation.ProcessArchitecture switch
+        {
+            Architecture.Arm => "arm",
+            Architecture.Arm64 => "arm64",
+            Architecture.X86 or Architecture.X64 => "x64",
+            _ => null
+        };
+        
+        string? os = null;
+        if (_runtimeInformation.IsMacOs)
+            os = "osx";
+        else if (_runtimeInformation.IsWindows)
+            os = "win";
+        else if (_runtimeInformation.IsLinux)
+            os = "linux";
+
+        if (string.IsNullOrEmpty(arch))
+            return Result.Failure<DownloadInfo>($"Invalid architecture (Only supported ARM/64 or x86/64), " +
+                                                $"`{_runtimeInformation.ProcessArchitecture}` is not supported. Get a real processor.");
+        if (string.IsNullOrEmpty(os))
+            return Result.Failure<DownloadInfo>("Invalid OS (Only supported osx, win, linux). get a real OS!");
+
+        var url = $"https://github.com/actions/runner/releases/download/v{DefaultRunnerDownloadVersion}/actions-runner-{os}-{arch}-{DefaultRunnerDownloadVersion}.{extension}";
+        
+        return new DownloadInfo(fileName, url);
+    }
+
+    private sealed record DownloadInfo(string Url, string FileName);
 }

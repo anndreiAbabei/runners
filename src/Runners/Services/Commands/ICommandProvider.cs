@@ -24,7 +24,7 @@ public sealed class CommandProvider : ICommandProvider
     {
         var cmd = _runtimeProvider.IsWindows
                       ? "cmd"
-                      : "sh";
+                      : "bash";
 
         return Create(cmd);
     }

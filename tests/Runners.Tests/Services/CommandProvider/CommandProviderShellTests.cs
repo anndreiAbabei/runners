@@ -28,7 +28,7 @@ public sealed class CommandProviderShellTests
     public void Should_ReturnSh_WhenNotRunningOnWindows()
     {
         // arrange
-        const string expectedCommand = "sh";
+        const string expectedCommand = "bash";
         var runtimeProvider = Substitute.For<IRuntimeInformationProvider>();
         runtimeProvider.IsOSPlatform(OSPlatform.Windows).Returns(false);
         var sut = new CommandProvider(runtimeProvider);
