@@ -28,6 +28,6 @@ public sealed class StringExDefaultTests
         var result = value.Default(expectedValue);
 
         // assert
-        Assert.Equal(value, result);
+        Assert.Equal(expectedValue, result);
     }
 }

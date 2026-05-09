@@ -18,7 +18,7 @@ public sealed class AppSettingsManagerWriteTests
         var sut = new AppSettingsManager(fs);
 
         // act
-        var ex = await Record.ExceptionAsync(async () => await sut.Write(new AppSettings()));
+        var ex = await Record.ExceptionAsync(async () => await sut.Write(new AppSettings(), TestContext.Current.CancellationToken));
 
         // assert
         Assert.Null(ex);
@@ -40,11 +40,11 @@ public sealed class AppSettingsManagerWriteTests
         };
 
         // act
-        await sut.Write(expectedAppSettings);
+        await sut.Write(expectedAppSettings, TestContext.Current.CancellationToken);
 
         // assert
         ms.Seek(0, SeekOrigin.Begin);
-        var settings = await JsonSerializer.DeserializeAsync<AppSettings>(ms);
+        var settings = await JsonSerializer.DeserializeAsync<AppSettings>(ms, cancellationToken: TestContext.Current.CancellationToken);
         Assert.Equal(expectedAppSettings, settings, AppSettingsComparer.Default);
         
         stream.RealDispose();

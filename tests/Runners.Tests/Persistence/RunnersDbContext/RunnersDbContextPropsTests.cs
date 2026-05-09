@@ -14,7 +14,7 @@ public sealed class RunnersDbContextPropsTests
     {
         // arrange
         await using var connection = new SqliteConnection("Filename=:memory:");
-        await connection.OpenAsync();
+        await connection.OpenAsync(TestContext.Current.CancellationToken);
         var options = new DbContextOptionsBuilder<RunnersDbContext>()
                       .UseSqlite(connection)
                       .Options;
@@ -24,10 +24,10 @@ public sealed class RunnersDbContextPropsTests
         var log = Substitute.For<ILogger<RunnersDbContext>>();
         
         await using var ctx = new RunnersDbContext(runtime, options, fs, appSettingsManager, log);
-        await ctx.Database.MigrateAsync();
+        await ctx.Database.MigrateAsync(TestContext.Current.CancellationToken);
         
         // act
-        var items = await ctx.RunnerItems.ToListAsync();
+        var items = await ctx.RunnerItems.ToListAsync(TestContext.Current.CancellationToken);
 
         // assert
         Assert.Empty(items);

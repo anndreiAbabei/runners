@@ -31,7 +31,7 @@ public sealed class AppSettingsManagerReadTests
         var sut = new AppSettingsManager(fs);
 
         // act
-        var result = await sut.Read();
+        var result = await sut.Read(TestContext.Current.CancellationToken);
 
         // assert
         Assert.IsType<AppSettings>(result);
@@ -46,7 +46,7 @@ public sealed class AppSettingsManagerReadTests
             RunnersFolder = "test"
         };
         using var ms = new MemoryStream();
-        await JsonSerializer.SerializeAsync(ms, expectedAppSettings);
+        await JsonSerializer.SerializeAsync(ms, expectedAppSettings, cancellationToken: TestContext.Current.CancellationToken);
         ms.Seek(0, SeekOrigin.Begin);
         var fs = Substitute.For<IFileSystemManager>();
         fs.GetFile(AppSettingsManager.AppSettingsFileName, FileMode.Open, FileAccess.Read)
@@ -54,7 +54,7 @@ public sealed class AppSettingsManagerReadTests
         var sut = new AppSettingsManager(fs);
 
         // act
-        var result = await sut.Read();
+        var result = await sut.Read(TestContext.Current.CancellationToken);
 
         // assert
         Assert.Equal(expectedAppSettings, result, AppSettingsComparer.Default);
