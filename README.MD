@@ -108,5 +108,5 @@ Change the state of a runner.
 
 Usage:
 ```shell
-runners delete {RunnerId} [--yes {value}]
+runners delete {RunnerId} --yes
 ```
